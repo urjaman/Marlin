@@ -1636,7 +1636,7 @@
  * you must uncomment the following option or it won't work.
  *
  */
-#define SDSUPPORT
+//#define SDSUPPORT
 
 /**
  * SD CARD: SPI SPEED
@@ -2157,6 +2157,10 @@
  * LED Type. Enable only one of the following two options.
  *
  */
+
+
+#define LEDTHING_LED
+
 //#define RGB_LED
 //#define RGBW_LED
 
@@ -2195,7 +2199,7 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-#if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+#if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED, LEDTHING_LED)
   #define PRINTER_EVENT_LEDS
 #endif
 

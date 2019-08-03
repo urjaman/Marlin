@@ -42,6 +42,10 @@
   #include <SailfishRGB_LED.h>
 #endif
 
+#if ENABLED(LEDTHING_LED)
+  #include "ledthing.h"
+#endif
+
 #if ENABLED(LED_COLOR_PRESETS)
   const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
     LED_USER_PRESET_RED,
@@ -73,6 +77,9 @@ void LEDLights::setup() {
   #endif
   #if ENABLED(PCA9533)
     RGBinit();
+  #endif
+  #if ENABLED(LEDTHING_LED)
+    ledthing_init();
   #endif
   #if ENABLED(LED_USER_PRESET_STARTUP)
     set_default();
@@ -142,6 +149,10 @@ void LEDLights::set_color(const LEDColor &incol
 
   #if ENABLED(PCA9533)
     RGBsetColor(incol.r, incol.g, incol.b, true);
+  #endif
+
+  #if ENABLED(LEDTHING_LED)
+    ledthing_set_led_color(incol);
   #endif
 
   #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)

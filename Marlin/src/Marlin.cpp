@@ -149,6 +149,11 @@
   #include "feature/leds/tempstat.h"
 #endif
 
+#if ENABLED(LEDTHING_LED)
+  #include "feature/leds/ledthing.h"
+#endif
+
+
 #if HAS_CASE_LIGHT
   #include "feature/caselight.h"
 #endif
@@ -623,6 +628,10 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(TEMP_STAT_LEDS)
     handle_status_leds();
+  #endif
+
+  #if ENABLED(LEDTHING_LED)
+    ledthing_handle_status();
   #endif
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
