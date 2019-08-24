@@ -116,7 +116,9 @@ static uint8_t make_frame(uint8_t *frame, const uint8_t *buf, uint8_t cnt) {
 
 static uint8_t make_nop(uint8_t *frame) {
 	const uint8_t nop[1] = { 0 };
-	return make_frame(frame, nop, 1);
+	// Make a long sync-frame for the NOP to synchronize better
+	for (uint8_t i=0;i<12;i++) frame[i] = 0x9D;
+	return make_frame(frame+12, nop, 1) + 12;
 }
 
 static uint8_t make_set_nch(uint8_t *frame, uint8_t ch1, uint8_t nch, uint16_t *val) {
@@ -200,23 +202,27 @@ void ledthing_init(void) {
 	for (n=0; n < 3; n++) {
 		if (!do_cmd(frame, fl)) break;
 	}
-	if (n==3) return;
-	ledthing_set_led_color(LEDColor(0,0,0));
-}
-
-
-inline uint8_t intensity(const float &start, const float &current, const float &target) {
-    return (uint8_t)map(constrain(current, start, target), start, target, 0.f, 192.f);
+//	if (n==3) return;
+//	ledthing_set_led_color(LEDColor(0,0,0));
 }
 
 void ledthing_handle_status(void) {
 #if HAS_HEATED_BED
+	static uint8_t state = 0;
 	static int old_red = -1;
 	static millis_t next_status_led_update_ms = 0;
  	if (ELAPSED(millis(), next_status_led_update_ms)) {
 		next_status_led_update_ms += 500; // Update every 0.5s
-		float temp = thermalManager.degBed();
-		const int8_t new_red = intensity(45.0, temp, 70.0);
+		int temp = (int) (thermalManager.degBed() + 0.5);
+		uint8_t state_intensity[4] = { 0, 32, 128, 180 };
+		uint8_t temp_us = (state * 10) + 50;
+		uint8_t temp_ds = temp_us - 15;
+		uint8_t new_state = state;
+		if ((temp >= temp_us)&&(new_state < 3)) new_state++;
+		else if ((temp < temp_ds)&&(new_state)) new_state--;
+		state = new_state;
+
+		const int new_red = state_intensity[state];
 		if (new_red != old_red) {
 			uint8_t frame[16];
 			uint8_t fl = make_set_bedred(frame, curve_lookup(new_red));
